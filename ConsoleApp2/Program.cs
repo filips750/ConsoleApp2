@@ -54,14 +54,20 @@ List<Car> deserializedCars = DeserializeCars();
 
 XElement rootNode = XElement.Load("CarsCollection.xml");
 
-IEnumerable<double> horsePowers = rootNode.XPathSelectElements("//Car[Engine/Model != 'TDI']/Engine/HorsePower")
-    .Select(x => (double)x);
+double avgHP = rootNode.XPathSelectElements("//Car[Engine/Model != 'TDI']/Engine/HorsePower")
+    .Select(x => (double)x).Average();
 
-double avgHP = horsePowers.Average();
 
-Console.Out.WriteLine("Średnia policzona z XPathSelectElements" + avgHP.ToString());
+Console.Out.WriteLine("Średnia policzona z XPathSelectElements: " + avgHP.ToString());
 
 IEnumerable<string> models = rootNode.XPathSelectElements("//Car/Model").Select(x => x.Value).Distinct();
+
+foreach (string model in models)
+{
+    Console.WriteLine(model);
+}
+
+
 createXmlFromLinq(myCars);
 
 GenerateXHTMLTable(myCars);
@@ -144,19 +150,17 @@ static void ModifyXmlDocument()
 
     foreach (var carElement in root.Elements("Car"))
     {
-        // Zmiana nazwy elementu horsePower na hp
-        XElement horsePowerElement = carElement.Element("Engine").Element("horsePower");
+        XElement horsePowerElement = carElement.Element("Engine").Element("HorsePower");
         if (horsePowerElement != null)
         {
             horsePowerElement.Name = "hp";
         }
 
-        // Dodanie atrybutu year do elementu model
-        XElement yearElement = carElement.Element("year");
+        XElement yearElement = carElement.Element("Year");
         if (yearElement != null)
         {
             string yearValue = yearElement.Value;
-            carElement.Element("model").SetAttributeValue("year", yearValue);
+            carElement.Element("Model").SetAttributeValue("Year", yearValue);
             yearElement.Remove();
         }
     }
